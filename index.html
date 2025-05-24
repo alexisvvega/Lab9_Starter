@@ -6,6 +6,13 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lab 9</title>
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+    <script>
+      window.TrackJS && TrackJS.install({ 
+        token: "ddfba872da644956a8e15ef696177047"
+        // for more configuration options, see https://docs.trackjs.com
+      });
+    </script>
 
   <style>
     button {
@@ -89,6 +96,12 @@
 
   <script>
     let form = document.querySelector('form');
+    class InvalidInputError extends Error {
+      constructor(message) {
+        super(message); 
+        this.name = 'InvalidInputError'; 
+      }
+    }
     form.addEventListener('submit', e => {
       e.preventDefault();
       let output = document.querySelector('output');
@@ -96,12 +109,92 @@
       let secondNum = document.querySelector('#second-num').value;
       let operator = document.querySelector('#operator').value;
       output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      try {
+        if (!firstNum || !secondNum) throw new InvalidInputError('Both inputs are required');
+        if (isNaN(firstNum) || isNaN(secondNum)) throw new TypeError('Not a number');
+        if (operator === '/' && Number(secondNum) === 0) throw new RangeError('Division by zero');
+        const result = eval(`${firstNum} ${operator} ${secondNum}`);
+        output.textContent = result;
+      } catch (err) {
+        console.error('Calculation error:', err.message);
+        output.textContent = `Error: ${err.message}`;
+      } finally {
+        console.log('Calculation attempt finished');
+      }
     });
 
     let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
 
-    // Start your code here
-    // You may move this JS to another file if you wish
+    let count = 0;
+    errorBtns.forEach((button)=>{
+      const label = button.innerText.toLowerCase();
+      button.addEventListener('click', () => {
+        switch (label) {
+          case 'console log':
+            console.log('This is a console log message');
+            break;
+          case 'console error':
+            console.error('This is a console error message');
+            break;
+          case 'console count':
+            count++;
+            console.count('Count');
+            break;
+          case 'console warn':
+            console.warn('This is a console warning message');
+            break;
+          case 'console assert':
+            console.assert(count > 4, 'Count is not greater than 4');
+            break;
+          case 'console clear':
+            console.clear();
+            break;
+          case 'console dir':
+            console.dir(document);
+            break;
+          case 'console dirxml':
+            console.dirxml(document);
+            break;
+          case 'console group start':
+            console.group('Group Start');
+            break;
+          case 'console group end':
+            console.groupEnd();
+            break;
+          case 'console table':
+            const data = [
+              { name: 'Alice', age: 25 },
+              { name: 'Bob', age: 30 },
+              { name: 'Charlie', age: 35 }
+            ];
+            console.table(data);
+            break;
+          case 'start timer':
+            console.time('Timer');
+            break;
+          case 'end timer':
+            console.timeEnd('Timer');
+            break;
+          case 'console trace':
+            console.trace('Trace message');
+            break;
+          case 'trigger a global error':
+            const input = document.querySelector('#first-num');
+            if (input) input.remove(); 
+            document.querySelector('#first-num').value; 
+            break;
+        }
+      });
+    })
+
+    window.onerror = function (message, source, lineno, colno, error) {
+      console.warn('Global error caught!');
+      console.log('Message:', message);
+      console.log('Source:', source);
+      console.log(`Line: ${lineno}, Column: ${colno}`);
+      console.log('Error object:', error);
+    };
+
   </script>
 </body>
 
